@@ -47,7 +47,7 @@ const App = () => {
     }
   ]
 
-  return courses.map( c => <Course course={c} />);
+  return courses.map( c => <Course key={c.id} course={c} />);
 };
 
 export default App;
