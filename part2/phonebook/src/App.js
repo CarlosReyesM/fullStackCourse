@@ -3,7 +3,7 @@ import Filter from './components/Filter';
 import Header from './components/Header';
 import Form from './components/Form';
 import PersonsList from './components/PersonsList';
-import axios from 'axios';
+import backend from './backend/backend';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,19 +12,27 @@ const App = () => {
   const [searchValue, setSearchValue] = useState('');
   const [filteredPersons, setFilteredPersons] = useState(persons);
 
-  const hooks = () => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then((res) => res.data)
-      .then((data) => {
-        setPersons([...data]);
-      });
+  const getPersons = () => {
+    backend.getPersons().then((data) => {
+      setPersons([...data]);
+    });
   };
 
-  useEffect(hooks, []);
+  useEffect(getPersons, []);
+
   useEffect(() => {
     setFilteredPersons(persons);
   }, [persons]);
+
+  const resetForm = () => {
+    setNewName('');
+    setNewNumber('');
+  };
+
+  const resetPersons = (newPersons) => {
+    setPersons(newPersons);
+    setFilteredPersons(newPersons);
+  };
 
   const handleNameChange = (e) => {
     const theNewName = e.target.value;
@@ -48,16 +56,41 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (persons.some((p) => p.name.toLowerCase() === newName.toLowerCase())) {
-      return alert(`${newName} is already added to phonebook`);
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old phone number?`,
+        )
+      ) {
+        const changePerson = persons.find(
+          (p) => p.name.toLowerCase() === newName.toLowerCase(),
+        );
+        Object.assign(changePerson, { number: newNumber });
+        return backend.replaceNumber(changePerson).then((res) => {
+          const newPersons = persons.map((p) => (p.id !== res.id ? p : res));
+          resetPersons(newPersons);
+          resetForm();
+        });
+      }
+      return;
     }
     if (!newName.length || !newNumber.length) {
       return alert('You need to add a name and number');
     }
-    const newPersons = persons.concat({ name: newName, number: newNumber });
-    setPersons(newPersons);
-    setFilteredPersons(newPersons);
-    setNewName('');
-    setNewNumber('');
+    backend.setPerson({ name: newName, number: newNumber }).then((person) => {
+      const newPersons = persons.concat(person);
+      resetPersons(newPersons);
+    });
+    resetForm();
+  };
+
+  const deletePerson = (id) => {
+    const personToDelete = persons.find((p) => p.id === id);
+    if (window.confirm(`Delete ${personToDelete.name}?`)) {
+      backend.deletePerson(id).then(() => {
+        const newPersons = persons.filter((p) => p.id !== id);
+        resetPersons(newPersons);
+      });
+    }
   };
 
   return (
@@ -73,7 +106,7 @@ const App = () => {
         newNumber={newNumber}
       />
       <Header h={3} text='Numbers' />
-      <PersonsList persons={filteredPersons} />
+      <PersonsList persons={filteredPersons} handleDelete={deletePerson} />
     </>
   );
 };
