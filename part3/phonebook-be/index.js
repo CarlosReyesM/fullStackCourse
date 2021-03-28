@@ -1,8 +1,26 @@
 const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
 
 app.use(express.json());
+
+morgan.token('post', (req, res) => JSON.stringify(req.body) )
+
+app.use(
+  morgan(function (tokens, req, res) {
+    return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, 'content-length'),
+      '-',
+      tokens['response-time'](req, res),
+      'ms',
+      tokens.post(req, res),
+    ].join(' ');
+  }),
+);
 
 let persons = [
   {
@@ -57,8 +75,8 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body;
-  console.log(body)
-  const notUniqueName = persons.find(p => p.name === body.name);
+  console.log(body);
+  const notUniqueName = persons.find((p) => p.name === body.name);
 
   if (notUniqueName) {
     return response.status(400).json('name must be unique');
