@@ -3,9 +3,21 @@ GET http://localhost:3001/api/persons
 
 ###
 
+// Prod 
+
+GET https://blooming-sea-12590.herokuapp.com/api/persons
+
+###
+
 // get single person 
 
 GET http://localhost:3001/api/persons/2
+
+###
+
+// Prod 
+
+GET https://blooming-sea-12590.herokuapp.com/api/persons/76785301
 
 ####
 
@@ -15,9 +27,27 @@ DELETE http://localhost:3001/api/persons/11755650
 
 ###
 
+// Prod 
+
+DELETE https://blooming-sea-12590.herokuapp.com/api/11755650
+
+###
+
 // create new person
 
 POST  http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "Periquito",
+  "number": "23452346"
+}
+
+###
+
+// Prod
+
+POST  https://blooming-sea-12590.herokuapp.com/api/persons
 Content-Type: application/json
 
 {

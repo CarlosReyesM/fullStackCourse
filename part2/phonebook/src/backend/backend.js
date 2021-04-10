@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = 'http://localhost:3001/api/persons';
+const url = 'https://blooming-sea-12590.herokuapp.com/api/persons';
 
 const getPersons = () => {
   const response = axios.get(url);
