@@ -1,17 +1,17 @@
-require('dotenv').config();
-const express = require('express');
-const morgan = require('morgan');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const Person = require('./models/person');
+require('dotenv').config()
+const express = require('express')
+const morgan = require('morgan')
+const cors = require('cors')
 
-const app = express();
+const Person = require('./models/person')
 
-app.use(express.static('build'));
-app.use(express.json());
-app.use(cors());
+const app = express()
 
-morgan.token('post', (req, res) => JSON.stringify(req.body));
+app.use(express.static('build'))
+app.use(express.json())
+app.use(cors())
+
+morgan.token('post', (req) => JSON.stringify(req.body))
 
 app.use(
   morgan(function (tokens, req, res) {
@@ -24,9 +24,9 @@ app.use(
       tokens['response-time'](req, res),
       'ms',
       tokens.post(req, res),
-    ].join(' ');
+    ].join(' ')
   }),
-);
+)
 
 let persons = [
   {
@@ -49,51 +49,51 @@ let persons = [
     number: '39-23-6423122',
     id: 4,
   },
-];
+]
 
 app.get('/', (request, response) => {
-  const today = new Date();
+  const today = new Date()
   response.send(
     `<p>Phonebook has info for ${persons.length} people</p><p>${today}</p>`,
-  );
-});
+  )
+})
 
 app.get('/api/persons', (request, response) => {
   Person.find({})
     .then((p) => response.json(p))
-    .catch((e) => console.log(e));
-});
+    .catch((e) => console.log(e))
+})
 
 app.get('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id;
+  const id = request.params.id
   Person.findById(id).then(p => {
     if (!p) {
-      return response.status(404).end();
+      return response.status(404).end()
     }
     return response.json(p)
   }).catch(e => {
     next(e)
-  });
-});
+  })
+})
 
 app.post('/api/persons', (request, response, next) => {
-  const { body } = request;
-  console.log(body);
+  const { body } = request
+  console.log(body)
 
   const person = new Person({
     name: body.name,
     number: body.number,
-  });
+  })
 
   person.save()
     .then(savedPerson => response.json(savedPerson))
-    .catch(e => next(e));
-});
+    .catch(e => next(e))
+})
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id;
+  const id = request.params.id
 
-  const { body } = request;
+  const { body } = request
   const changePerson = {
     number: body.number,
   }
@@ -105,19 +105,19 @@ app.put('/api/persons/:id', (request, response, next) => {
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id;
+  const id = request.params.id
   Person.findByIdAndRemove(id)
     .then(() => response.status(204).end())
     .catch(e => next(e))
 
-});
+})
 
 const unknownEndpoint = (_request, response) => response.status(404).send({ error: 'unknown endpoint' })
 
-app.use(unknownEndpoint);
+app.use(unknownEndpoint)
 
 const errorHandler = (error, _request, response, next) => {
-  console.log(error.message);
+  console.log(error.message)
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
   }
@@ -129,6 +129,6 @@ const errorHandler = (error, _request, response, next) => {
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT;
-app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
+const PORT = process.env.PORT
+app.listen(PORT)
+console.log(`Server running on port ${PORT}`)
