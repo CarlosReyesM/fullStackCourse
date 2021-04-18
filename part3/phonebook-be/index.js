@@ -64,7 +64,7 @@ app.get('/api/persons', (request, response) => {
     .catch((e) => console.log(e));
 });
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id;
   Person.findById(id).then(p => {
     if (!p) {
@@ -76,7 +76,7 @@ app.get('/api/persons/:id', (request, response) => {
   });
 });
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const { body } = request;
   console.log(body);
   if (body.name === undefined) {
@@ -96,7 +96,7 @@ app.post('/api/persons', (request, response) => {
   }).catch(e => next(e));
 });
 
-app.put('/api/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id;
 
   const { body } = request;
@@ -110,7 +110,7 @@ app.put('/api/persons/:id', (request, response) => {
     .catch(e => next(e))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id;
   Person.findByIdAndRemove(id)
     .then(() => response.status(204).end())
