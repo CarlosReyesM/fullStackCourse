@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const Person = require('./models/person')
 
 const app = express();
 
@@ -27,30 +28,6 @@ app.use(
   }),
 );
 
-const url = process.env.MONGO_URI;
-
-mongoose.connect(url, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
-});
-
-const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-});
-
-personSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-  },
-});
-
-const Person = mongoose.model('Person', personSchema);
-
 let persons = [
   {
     name: 'Arto Hellas',
@@ -74,8 +51,6 @@ let persons = [
   },
 ];
 
-const generateID = () => Math.floor(Math.random() * 99999999);
-
 app.get('/', (request, response) => {
   const today = new Date();
   response.send(
@@ -90,12 +65,13 @@ app.get('/api/persons', (request, response) => {
 });
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find((p) => p.id === id);
-  if (!person) {
-    return response.status(400).end();
-  }
-  return response.json(person);
+  const id = request.params.id;
+  Person.findById(id).then(p => {
+    if (!p) {
+      return response.status(400).end();
+    }
+    return response.json(p)
+  }).catch(e => console.log(e));
 });
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -107,20 +83,21 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response) => {
   const body = request.body;
   console.log(body);
-  const notUniqueName = persons.find((p) => p.name === body.name);
-
-  if (notUniqueName) {
-    return response.status(400).json('name must be unique');
+  if (body.name === undefined) {
+    return response.status(400).json('name missing');
   }
 
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: generateID(),
-  };
+  Person.find({ name: body.name }).then(p => {
+    if (p.length) {
+      return response.status(400).json('name must be unique').end();
+    }
+    const person = new Person({
+      name: body.name,
+      number: body.number,
+    });
 
-  persons = persons.concat(person);
-  response.json(person);
+    person.save().then(savedPerson => response.json(savedPerson));
+  }).catch(e => console.log(e));
 });
 
 const PORT = process.env.PORT;

@@ -11,7 +11,7 @@ GET https://blooming-sea-12590.herokuapp.com/api/persons
 
 // get single person 
 
-GET http://localhost:3001/api/persons/2
+GET http://localhost:3001/api/persons/6075aebcba93b14980160644
 
 ###
 
@@ -39,7 +39,7 @@ POST  http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-  "name": "Periquito",
+  "name": "Jacinto",
   "number": "23452346"
 }
 
