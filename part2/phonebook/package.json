@@ -2,6 +2,7 @@
   "name": "phonebook",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3001",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.5",
@@ -39,6 +40,5 @@
   },
   "devDependencies": {
     "json-server": "^0.16.3"
-  },
-  "proxy": "http://localhost:3001" 
+  }
 }
