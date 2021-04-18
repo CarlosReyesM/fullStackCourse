@@ -109,7 +109,13 @@ const App = () => {
         const newPersons = persons.concat(person);
         resetPersons(newPersons);
       })
-      .then(() => showAdd(newName));
+      .then(() => showAdd(newName))
+      .catch(error => {
+        console.log(error.response.data)
+        showError(
+          error.response.data.error
+        )
+      });
     resetForm();
   };
 

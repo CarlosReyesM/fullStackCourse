@@ -79,21 +79,15 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.post('/api/persons', (request, response, next) => {
   const { body } = request;
   console.log(body);
-  if (body.name === undefined) {
-    return response.status(400).json('name missing');
-  }
 
-  Person.find({ name: body.name }).then(p => {
-    if (p.length) {
-      return response.status(400).json('name must be unique').end();
-    }
-    const person = new Person({
-      name: body.name,
-      number: body.number,
-    });
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  });
 
-    person.save().then(savedPerson => response.json(savedPerson));
-  }).catch(e => next(e));
+  person.save()
+    .then(savedPerson => response.json(savedPerson))
+    .catch(e => next(e));
 });
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -123,9 +117,12 @@ const unknownEndpoint = (_request, response) => response.status(404).send({ erro
 app.use(unknownEndpoint);
 
 const errorHandler = (error, _request, response, next) => {
-  console.log(error);
+  console.log(error.message);
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
+  }
+  if (error.name === 'ValidationError') {
+    return response.status(400).send({ error: error.message })
   }
   next(error)
 }
