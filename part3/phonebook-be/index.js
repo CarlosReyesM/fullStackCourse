@@ -3,13 +3,13 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const Person = require('./models/person')
+const Person = require('./models/person');
 
 const app = express();
 
+app.use(express.static('build'));
 app.use(express.json());
 app.use(cors());
-app.use(express.static('build'));
 
 morgan.token('post', (req, res) => JSON.stringify(req.body));
 
@@ -68,20 +68,16 @@ app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id;
   Person.findById(id).then(p => {
     if (!p) {
-      return response.status(400).end();
+      return response.status(404).end();
     }
     return response.json(p)
-  }).catch(e => console.log(e));
-});
-
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((p) => p.id !== id);
-  response.status(204).end();
+  }).catch(e => {
+    next(e)
+  });
 });
 
 app.post('/api/persons', (request, response) => {
-  const body = request.body;
+  const { body } = request;
   console.log(body);
   if (body.name === undefined) {
     return response.status(400).json('name missing');
@@ -97,8 +93,44 @@ app.post('/api/persons', (request, response) => {
     });
 
     person.save().then(savedPerson => response.json(savedPerson));
-  }).catch(e => console.log(e));
+  }).catch(e => next(e));
 });
+
+app.put('/api/persons/:id', (request, response) => {
+  const id = request.params.id;
+
+  const { body } = request;
+  const changePerson = {
+    number: body.number,
+  }
+  Person.findByIdAndUpdate(id, changePerson, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(e => next(e))
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+  const id = request.params.id;
+  Person.findByIdAndRemove(id)
+    .then(() => response.status(204).end())
+    .catch(e => next(e))
+
+});
+
+const unknownEndpoint = (_request, response) => response.status(404).send({ error: 'unknown endpoint' })
+
+app.use(unknownEndpoint);
+
+const errorHandler = (error, _request, response, next) => {
+  console.log(error);
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT;
 app.listen(PORT);
