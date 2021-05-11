@@ -51,14 +51,14 @@ let persons = [
   },
 ]
 
-app.get('/', (request, response) => {
+app.get('/', (_request, response) => {
   const today = new Date()
   response.send(
     `<p>Phonebook has info for ${persons.length} people</p><p>${today}</p>`,
   )
 })
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (_request, response) => {
   Person.find({})
     .then((p) => response.json(p))
     .catch((e) => console.log(e))
