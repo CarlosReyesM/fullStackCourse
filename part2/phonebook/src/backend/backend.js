@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const url = process.env.REACT_APP_BE;
+const url = process.env.NODE_ENV === 'production' ? process.env.REACT_APP_PROD_BE : process.env.REACT_APP_LOCAL_BE;
+console.log(url);
 
 const getPersons = () => {
   const response = axios.get(`${url}/api/persons`);

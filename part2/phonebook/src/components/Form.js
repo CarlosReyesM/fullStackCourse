@@ -23,7 +23,7 @@ const Form = ({
         handleChange={handleNumberChange}
         value={newNumber}
       />
-      <SubmitButton text='Add' />
+      <SubmitButton text='Add Person' />
     </form>
   );
 };
