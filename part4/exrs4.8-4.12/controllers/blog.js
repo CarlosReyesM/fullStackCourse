@@ -25,4 +25,25 @@ blogRouter.post('/', (request, response) => {
     })
 })
 
+blogRouter.delete('/:id', (request, response) => {
+  const id = request.params.id
+  Blog
+    .find({ _id: id })
+    .remove()
+    .then(result => response.status(204).json(result))
+})
+
+blogRouter.put('/:id', (request, response) => {
+  const { body: { likes } } = request
+  if (!likes) {
+    response.status(400).json('Bad request')
+    return
+  }
+  const id = request.params.id
+  Blog
+    .find({ _id: id })
+    .update({ likes })
+    .then(result => response.status(204).json(result))
+})
+
 module.exports = blogRouter

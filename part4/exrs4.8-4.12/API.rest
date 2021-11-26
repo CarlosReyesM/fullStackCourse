@@ -14,3 +14,9 @@ Content-Type: application/json
   "url": "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
   "likes": 2
 }
+
+###
+
+// Delete Post
+
+DELETE http://localhost:3003/api/blogs/61a0875aa5895b309d8e3bc4

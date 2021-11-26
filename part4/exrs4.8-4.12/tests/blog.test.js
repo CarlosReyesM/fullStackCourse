@@ -75,6 +75,36 @@ test('missing title and url', async () => {
     .expect(400)
 })
 
+test('delete single blog', async () => {
+  const blogs = await testHelper.blogsInDb()
+  const blogToDelete = blogs[0].id
+
+  await api
+    .delete(`/api/blogs/${blogToDelete}`)
+    .expect(204)
+
+  const restBlogs = await testHelper.blogsInDb()
+
+  expect(restBlogs).toHaveLength(testHelper.blogs.length - 1)
+})
+
+test('update an object', async () => {
+  const blogs = await testHelper.blogsInDb()
+  const blogToUpdate = blogs[0].id
+  const updateParams = { likes: 8 }
+
+  await api
+    .put(`/api/blogs/${blogToUpdate}`)
+    .send(updateParams)
+    .expect(204)
+
+  const updatedBlogs = await testHelper.blogsInDb()
+
+  const blogUpdated = updatedBlogs.find(b => b.id === blogToUpdate)
+
+  expect(blogUpdated.likes).toBe(8)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
