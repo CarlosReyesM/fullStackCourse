@@ -9,10 +9,7 @@ const api = supertest(app)
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  const blogObjects = testHelper.blogs
-    .map(blog => new Blog(blog))
-  const promiseArray = blogObjects.map(blog => blog.save())
-  await Promise.all(promiseArray)
+  await Blog.insertMany(testHelper.blogs)
 })
 
 test('fetch all blogs', async () => {
@@ -28,6 +25,11 @@ test('exist id property', async () => {
 })
 
 test('posting new blog', async () => {
+  const userLogIn = await api.post('/api/login').send({
+    username: 'superRoot',
+    password: 'superRootPassword'
+  })
+  const { token } = userLogIn
   const newBlog = {
     title: 'new blog post',
     author: 'new author post',
@@ -36,8 +38,9 @@ test('posting new blog', async () => {
   }
 
   await api.post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newBlog)
-    .expect(201)
+    .expect(200)
     .expect('Content-Type', /application\/json/)
 
   const response = await testHelper.blogsInDb()
@@ -45,6 +48,11 @@ test('posting new blog', async () => {
 })
 
 test('missing likes equal 0', async () => {
+  const userLogIn = await api.post('/api/login').send({
+    username: 'superRoot',
+    password: 'superRootPassword'
+  })
+  const { token } = userLogIn
   const newBlog = {
     title: 'new blog missing likes',
     author: 'new missing likes author post',
@@ -52,8 +60,9 @@ test('missing likes equal 0', async () => {
   }
 
   await api.post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newBlog)
-    .expect(201)
+    .expect(200)
     .expect('Content-Type', /application\/json/)
 
   const response = await testHelper.blogsInDb()
@@ -63,6 +72,11 @@ test('missing likes equal 0', async () => {
 })
 
 test('missing title and url', async () => {
+  const userLogIn = await api.post('/api/login').send({
+    username: 'superRoot',
+    password: 'superRootPassword'
+  })
+  const { token } = userLogIn
   const newBlog = {
     title: '',
     author: 'author of missing title and url post',
@@ -71,16 +85,24 @@ test('missing title and url', async () => {
   }
 
   await api.post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newBlog)
     .expect(400)
 })
 
 test('delete single blog', async () => {
+  const userLogIn = await api.post('/api/login').send({
+    username: 'superRoot',
+    password: 'superRootPassword'
+  })
+  console.log(userLogIn)
+  const { token } = userLogIn
   const blogs = await testHelper.blogsInDb()
   const blogToDelete = blogs[0].id
 
   await api
     .delete(`/api/blogs/${blogToDelete}`)
+    .set('Authorization', `bearer ${token}`)
     .expect(204)
 
   const restBlogs = await testHelper.blogsInDb()

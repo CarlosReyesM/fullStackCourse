@@ -1,0 +1,55 @@
+// login
+
+POST http://localHost:3003/api/login
+Content-Type: application/json
+
+{
+  "username": "superRoot",
+  "password": "superSuperRootl"
+}
+
+###
+// get all blogs
+GET http://localHost:3003/api/blogs
+
+###
+
+// post new blog
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InN1cGVyUm9vdCIsImlkIjoiNjFhNGMwZGU2ZmUxN2M4YTQwYmY0YjYzIiwiaWF0IjoxNjM4MTk2NzY2fQ._ZxqKukIj_KhqsleUM-oWlpnyeh3f2fCivQvPd7maxM
+
+{
+  "title": "Type wars wer",
+  "author": "Robert C. Martin wrt",
+  "url": "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+  "likes": 2
+}
+
+###
+
+// Delete Post
+
+DELETE http://localhost:3003/api/blogs/61a4ff800fda283fd041e942
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InN1cGVyUm9vdCIsImlkIjoiNjFhNGMwZGU2ZmUxN2M4YTQwYmY0YjYzIiwiaWF0IjoxNjM4MTk2NzY2fQ._ZxqKukIj_KhqsleUM-oWlpnyeh3f2fCivQvPd7maxM
+
+
+###
+
+// Create user
+
+POST http://localHost:3003/api/user
+Content-Type: application/json
+
+{
+  "name": "root",
+  "username": "superRoot",
+  "password": "superSuperRootl"
+}
+
+### 
+// Get all users
+GET http://localHost:3003/api/user
+
+
