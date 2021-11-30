@@ -9,12 +9,16 @@ const api = supertest(app)
 
 beforeEach(async () => {
   await User.deleteMany({})
-  const newUser = new User({
+  const newUser = {
     name: 'root',
     username: 'superRoot',
-    passwordHash: 'superRootPassword'
-  })
-  await newUser.save()
+    password: 'superRootPassword'
+  }
+
+  await api.post('/api/user')
+    .send(newUser)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
 })
 
 test('fetch all users', async () => {

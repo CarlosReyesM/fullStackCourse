@@ -5,7 +5,7 @@ const User = require('../models/user')
 
 loginRouter.post('/', async (request, response) => {
   const { body: { username: bodyUsername, password } } = request
-  const user = await User.findOne({ bodyUsername })
+  const user = await User.findOne({ username: bodyUsername })
 
   const { name, username, passwordHash } = user
 

@@ -3,13 +3,12 @@ const jwt = require('jsonwebtoken')
 
 const requestLogger = (request, response, next) => {
   if (process.env.NODE_ENV !== 'test') {
-    return console.log(request)
+    logger.info('Method:', request.method)
+    logger.info('Path:  ', request.path)
+    logger.info('Body:  ', request.body)
+    logger.info('---')
+    next()
   }
-  logger.info('Method:', request.method)
-  logger.info('Path:  ', request.path)
-  logger.info('Body:  ', request.body)
-  logger.info('---')
-  next()
 }
 
 const unknownEndpoint = (request, response) => {
@@ -18,10 +17,9 @@ const unknownEndpoint = (request, response) => {
 
 const errorHandler = (error, request, response, next) => {
   if (process.env.NODE_ENV !== 'test') {
-    return console.log(error)
+    logger.error(error.name)
+    logger.error(error.message)
   }
-  logger.error(error.name)
-  logger.error(error.message)
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
@@ -40,10 +38,10 @@ const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization')
   if (!authorization || !authorization.toLowerCase().startsWith('bearer ')) {
     request.token = null
-    return next()
+    next()
   }
   request.token = authorization.substring(7)
-  return next()
+  next()
 }
 
 const userExtractor = (request, response, next) => {
@@ -57,7 +55,7 @@ const userExtractor = (request, response, next) => {
   }
 
   request.userId = decodedToken.id
-  return next()
+  next()
 }
 
 module.exports = {
