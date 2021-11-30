@@ -12,8 +12,6 @@ const logger = require('./utils/logger')
 
 const mongoUrl = config.MONGODB_URI
 
-console.log(mongoUrl)
-
 logger.info('connecting to', mongoUrl)
 
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })

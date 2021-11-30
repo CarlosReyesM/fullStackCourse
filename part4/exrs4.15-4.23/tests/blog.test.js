@@ -29,7 +29,7 @@ test('posting new blog', async () => {
     username: 'superRoot',
     password: 'superRootPassword'
   })
-  const { token } = userLogIn
+  const { body: { token } } = userLogIn
   const newBlog = {
     title: 'new blog post',
     author: 'new author post',
@@ -52,7 +52,7 @@ test('missing likes equal 0', async () => {
     username: 'superRoot',
     password: 'superRootPassword'
   })
-  const { token } = userLogIn
+  const { body: { token } } = userLogIn
   const newBlog = {
     title: 'new blog missing likes',
     author: 'new missing likes author post',
@@ -76,7 +76,7 @@ test('missing title and url', async () => {
     username: 'superRoot',
     password: 'superRootPassword'
   })
-  const { token } = userLogIn
+  const { body: { token } } = userLogIn
   const newBlog = {
     title: '',
     author: 'author of missing title and url post',
@@ -95,8 +95,8 @@ test('delete single blog', async () => {
     username: 'superRoot',
     password: 'superRootPassword'
   })
-  console.log(userLogIn)
-  const { token } = userLogIn
+  console.log(userLogIn.body)
+  const { body: { token } } = userLogIn
   const blogs = await testHelper.blogsInDb()
   const blogToDelete = blogs[0].id
 
