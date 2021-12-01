@@ -7,14 +7,21 @@ const app = require('../app')
 
 const api = supertest(app)
 
+jest.setTimeout(30000)
+
 beforeEach(async () => {
+  await new Promise(resolve => setTimeout(() => resolve(), 5000))
   await User.deleteMany({})
-  const newUser = new User({
+  const newUser = {
     name: 'root',
     username: 'superRoot',
-    passwordHash: 'superRootPassword'
-  })
-  await newUser.save()
+    password: 'superRootPassword'
+  }
+
+  await api.post('/api/user')
+    .send(newUser)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
 })
 
 test('fetch all users', async () => {
@@ -44,6 +51,7 @@ test('create new user', async () => {
   expect(users).toHaveLength(2)
 })
 
-afterAll(() => {
-  mongoose.connection.close()
+afterAll(async () => {
+  mongoose.connection.close(true)
+  await new Promise(resolve => setTimeout(() => resolve(), 500))
 })

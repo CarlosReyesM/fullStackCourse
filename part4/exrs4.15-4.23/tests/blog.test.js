@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const supertest = require('supertest')
 const testHelper = require('../utils/testHelper')
 
@@ -7,9 +8,29 @@ const app = require('../app')
 
 const api = supertest(app)
 
+jest.setTimeout(30000)
+
 beforeEach(async () => {
+  await new Promise(resolve => setTimeout(() => resolve(), 5000))
+  await User.deleteMany({})
+
+  const newUser = {
+    name: 'root',
+    username: 'superRoot',
+    password: 'superRootPassword'
+  }
+
+  await api.post('/api/user')
+    .send(newUser)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const users = await api.get('/api/user')
+  const rootUser = users.body[0]
+
+  const blogList = testHelper.blogs.map(b => { return { ...b, user: rootUser.id } })
   await Blog.deleteMany({})
-  await Blog.insertMany(testHelper.blogs)
+  await Blog.insertMany(blogList)
 })
 
 test('fetch all blogs', async () => {
@@ -38,7 +59,7 @@ test('posting new blog', async () => {
   }
 
   await api.post('/api/blogs')
-    .set('Authorization', `bearer ${token}`)
+    .set('authorization', `bearer ${token}`)
     .send(newBlog)
     .expect(200)
     .expect('Content-Type', /application\/json/)
@@ -85,7 +106,7 @@ test('missing title and url', async () => {
   }
 
   await api.post('/api/blogs')
-    .set('Authorization', `bearer ${token}`)
+    .set('authorization', `bearer ${token}`)
     .send(newBlog)
     .expect(400)
 })
@@ -95,14 +116,13 @@ test('delete single blog', async () => {
     username: 'superRoot',
     password: 'superRootPassword'
   })
-  console.log(userLogIn.body)
   const { body: { token } } = userLogIn
   const blogs = await testHelper.blogsInDb()
   const blogToDelete = blogs[0].id
 
   await api
     .delete(`/api/blogs/${blogToDelete}`)
-    .set('Authorization', `bearer ${token}`)
+    .set('authorization', `bearer ${token}`)
     .expect(204)
 
   const restBlogs = await testHelper.blogsInDb()
@@ -127,6 +147,7 @@ test('update an object', async () => {
   expect(blogUpdated.likes).toBe(8)
 })
 
-afterAll(() => {
-  mongoose.connection.close()
+afterAll(async () => {
+  mongoose.connection.close(true)
+  await new Promise(resolve => setTimeout(() => resolve(), 500))
 })
