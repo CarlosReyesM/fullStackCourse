@@ -11,7 +11,7 @@ blogRouter.get('/', async (request, response) => {
   response.json(blogs.map(blog => blog.toJSON()))
 })
 
-blogRouter.post('/', middleware.userExtractor, async (request, response) => {
+blogRouter.post('/', middleware.tokenExtractor, middleware.userExtractor, async (request, response) => {
   const { body: { title, author, url, likes = 0 } } = request
   if (!title && !url) {
     response.status(400).json('Bad request')
@@ -31,7 +31,7 @@ blogRouter.post('/', middleware.userExtractor, async (request, response) => {
   response.json(savedBlog.toJSON())
 })
 
-blogRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
+blogRouter.delete('/:id', middleware.tokenExtractor, middleware.userExtractor, async (request, response) => {
   const id = request.params.id
   const blogToDelete = await Blog.findById(id)
   if (!blogToDelete) {
